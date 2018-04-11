@@ -1,37 +1,56 @@
 package com.example.ilshat.innoattendance;
 
 
-import io.restassured.RestAssured;
-import io.restassured.response.Response;
-import io.restassured.specification.RequestSpecification;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class Database {
+    private static final String CLASS = "Database module";
+
     private String link;
+    private OkHttpClient client;
 
     public Database(String link) {
         this.link = link;
+        client = new OkHttpClient();
     }
 
-    public String login(String email, String password) throws JSONException {
+    public String login(String email, String password) {
         JSONObject requestBody = new JSONObject();
-        requestBody.put("do", "login");
-        requestBody.put("email", email);
-        requestBody.put("password", password);
+        try {
+            requestBody.put("do", "login");
+            requestBody.put("email", email);
+            requestBody.put("password", password);
+        } catch (JSONException e) {
+            Log.v(CLASS, e.getMessage());
+        }
 
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.body(requestBody.toString());
-        Response response = request.post(link);
+        RequestBody body = RequestBody
+                .create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
+        Request request = new Request.Builder()
+                .url(link)
+                .post(body)
+                .build();
 
-        return response.jsonPath().get("token");
+        try {
+            Response response = client.newCall(request).execute();
+            JSONObject responseBody = new JSONObject(response.body().string());
+            return responseBody.get("token").toString();
+        } catch (Exception e) {
+            Log.v(CLASS, e.getMessage());
+        }
+        return null;
     }
 
-    public boolean createUser(String token, String id, String name, String surname,
+    /*public boolean createUser(String token, String id, String name, String surname,
                               String email, String password, String status) throws JSONException {
         JSONObject requestBody = new JSONObject();
         requestBody.put("do", "createUser");
@@ -144,7 +163,7 @@ public class Database {
 
         return response.jsonPath().get("result").equals("OK");
     }
-/*
+*//*
     public boolean renameSubject(String token, String subject) {
         JSONObject requestBody = new JSONObject();
         requestBody.put("do", "renameSubject");
@@ -158,7 +177,7 @@ public class Database {
 
         return response.jsonPath().get("result").equals("OK");
     }
-*/
+*//*
     public boolean createCourseToSubject(String token, String subject, String course, String year) throws JSONException {
         JSONObject requestBody = new JSONObject();
         requestBody.put("do", "createCourseToSubject");
@@ -316,7 +335,7 @@ public class Database {
 
         return response.jsonPath().get("result").equals("OK");
     }
-/*
+*//*
     public boolean createTeacher(String token, String teacher) {
         JSONObject requestBody = new JSONObject();
         requestBody.put("do", "addCourseToSubject");

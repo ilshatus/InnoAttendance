@@ -1,11 +1,15 @@
 <resources>
-    <string name="app_name">InnoAttendanceXuynya</string>
+    <string name="app_name">InnoAttendance</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="log_out">Log out</string>
+
     <string name="title_activity_login">Sign in</string>
+
+    <!-- DB -->
+    <string name="link">http://valeev-aidar.tk/innoattendance.php</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -19,4 +23,8 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="user_management">User management</string>
+    <string name="education_management">Education management</string>
+    <string name="statistics_management">Statistics management</string>
+    <string name="attendance_management">Attendance management</string>
 </resources>
