@@ -13,13 +13,11 @@
             android:title="@string/statistics_management" />
     </group>
 
-    <item android:title="">
-        <menu>
-            <item
-                android:id="@+id/nav_log_out"
-                android:icon="@drawable/ic_menu_log_out"
-                android:title="@string/log_out" />
-        </menu>
-    </item>
+    <group android:checkableBehavior="none" android:id="@+id/unused">
+        <item
+            android:id="@+id/nav_log_out"
+            android:icon="@drawable/ic_menu_log_out"
+            android:title="@string/log_out" />
+    </group>
 
 </menu>

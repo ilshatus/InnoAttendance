@@ -21,17 +21,19 @@
         android:id="@+id/imageView" />
 
     <TextView
+        android:id="@+id/nav_header_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="Username"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:id="@+id/nav_header_name" />
+         />
 
     <TextView
+        android:id="@+id/nav_header_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Username email"
-        android:id="@+id/nav_header_email" />
+         />
 
 </LinearLayout>

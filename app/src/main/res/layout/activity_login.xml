@@ -8,9 +8,9 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.ilshat.innoattendance.LoginActivity">
+    tools:context="com.example.ilshat.innoattendance.View.LoginActivity">
 
-    <!-- Login progress -->
+    <!-- Model progress -->
     <ProgressBar
         android:id="@+id/login_progress"
         style="?android:attr/progressBarStyleLarge"

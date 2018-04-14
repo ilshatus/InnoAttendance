@@ -1,4 +1,4 @@
-package com.example.ilshat.innoattendance;
+package com.example.ilshat.innoattendance.View.Representative;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,22 +11,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
-import static com.example.ilshat.innoattendance.Settings.*;
+import com.example.ilshat.innoattendance.R;
+
+import static com.example.ilshat.innoattendance.RepositoryModel.Settings.*;
 
 public class ReprMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private Database database;
     private SharedPreferences mSettings;
-
+    private boolean navHeaderSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        database = new Database("http://valeev-aidar.tk/innoattendance.php");
         mSettings = getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -36,16 +37,25 @@ public class ReprMainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navHeaderSet = false;
 
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         /**
          * set corresponding menu
          */
         navigationView.inflateMenu(R.menu.repr_activity_main_drawer);
 
+        setHeaderStrings(navigationView.getHeaderView(0));
+
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    private void setHeaderStrings(View view) {
+        TextView textView = (TextView) view.findViewById(R.id.nav_header_name);
+        textView.setText(mSettings.getString(USERNAME, ""));
+        textView = (TextView) view.findViewById(R.id.nav_header_email);
+        textView.setText(mSettings.getString(EMAIL, ""));
+    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -80,7 +90,7 @@ public class ReprMainActivity extends AppCompatActivity
 
     private void logOut() {
         SharedPreferences.Editor editor = mSettings.edit();
-        editor.remove(AUTH_TOKEN);
+        editor.clear();
         editor.apply();
         finish();
     }

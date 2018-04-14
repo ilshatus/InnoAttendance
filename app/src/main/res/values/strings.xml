@@ -8,9 +8,6 @@
 
     <string name="title_activity_login">Sign in</string>
 
-    <!-- DB -->
-    <string name="link">http://valeev-aidar.tk/innoattendance.php</string>
-
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -27,4 +24,23 @@
     <string name="education_management">Education management</string>
     <string name="statistics_management">Statistics management</string>
     <string name="attendance_management">Attendance management</string>
+    <string name="password">Password</string>
+    <string name="create">Create</string>
+    <string name="email">Email</string>
+    <string name="surname">Surname</string>
+    <string name="name">Name</string>
+    <string name="id">Id</string>
+    <string name="student_full_name">Student full name</string>
+    <string name="group">Group</string>
+    <string name="add_to_group">Add</string>
+    <string name="delete_from_group">Delete</string>
+
+    <string name="error_not_found">Not found</string>
+    <string name="representative_full_name">Representative full name</string>>
+
+    <string-array name="statuses">
+        <item>edm</item>
+        <item>representative</item>
+        <item>representative</item>
+    </string-array>
 </resources>
