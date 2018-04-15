@@ -18,7 +18,6 @@ import com.example.ilshat.innoattendance.Presenter.Edm.EdmMainPresenter;
 import com.example.ilshat.innoattendance.R;
 import com.example.ilshat.innoattendance.View.Common.StatisticsManagementFragment;
 import com.example.ilshat.innoattendance.View.Edm.EducationManagement.EducationManagementFragment;
-import com.example.ilshat.innoattendance.View.Edm.EducationManagement.SubjectManagementFragment;
 import com.example.ilshat.innoattendance.View.Edm.UserManagement.UserManagementFragment;
 import com.example.ilshat.innoattendance.View.OnBackPressedListener;
 

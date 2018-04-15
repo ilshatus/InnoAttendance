@@ -9,12 +9,16 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.example.ilshat.innoattendance.Presenter.Representative.ReprMainPresenter;
 import com.example.ilshat.innoattendance.R;
+import com.example.ilshat.innoattendance.View.Common.StatisticsManagementFragment;
+import com.example.ilshat.innoattendance.View.Edm.EdmMainActivity;
+import com.example.ilshat.innoattendance.View.Edm.UserManagement.UserManagementFragment;
 import com.example.ilshat.innoattendance.View.OnBackPressedListener;
 
 public class ReprMainActivity extends AppCompatActivity
@@ -40,6 +44,7 @@ public class ReprMainActivity extends AppCompatActivity
         navigationView.inflateMenu(R.menu.repr_activity_main_drawer);
         headerView = navigationView.getHeaderView(0);
         navigationView.setNavigationItemSelectedListener(this);
+        onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
 
         presenter = new ReprMainPresenter(this);
     }
@@ -112,16 +117,46 @@ public class ReprMainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private void clearFragmentStack() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        while (fragmentManager.getBackStackEntryCount() > 0) {
+            fragmentManager.popBackStackImmediate();
+        }
+        reverseToolbar();
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        Class fragmentClass = null;
+        Fragment fragment = null;
         int id = item.getItemId();
 
-        if (id == R.id.nav_log_out) {
-            presenter.logOut();
+        switch (id) {
+            case R.id.nav_attendance_management:
+                fragmentClass = AttendanceManagementFragment.class;
+                break;
+            case R.id.nav_statistics_management:
+                fragmentClass = StatisticsManagementFragment.class;
+                break;
+            default:
+                presenter.logOut();
         }
 
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+            Bundle args = new Bundle();
+            args.putString("title", item.getTitle().toString());
+            fragment.setArguments(args);
+            clearFragmentStack();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_main, fragment)
+                    .commit();
+        } catch (Exception e) {
+            Log.v(EdmMainActivity.class.getName(), e.getMessage());
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

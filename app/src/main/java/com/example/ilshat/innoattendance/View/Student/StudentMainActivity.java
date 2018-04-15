@@ -2,18 +2,24 @@ package com.example.ilshat.innoattendance.View.Student;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.example.ilshat.innoattendance.Presenter.Student.StudentMainPresenter;
 import com.example.ilshat.innoattendance.R;
-
+import com.example.ilshat.innoattendance.View.Common.StatisticsManagementFragment;
+import com.example.ilshat.innoattendance.View.Edm.EdmMainActivity;
+import com.example.ilshat.innoattendance.View.OnBackPressedListener;
+import com.example.ilshat.innoattendance.View.Representative.AttendanceManagementFragment;
 
 
 public class StudentMainActivity extends AppCompatActivity
@@ -31,17 +37,16 @@ public class StudentMainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-
-
         navigationView.inflateMenu(R.menu.student_activity_main_drawer);
         headerView = navigationView.getHeaderView(0);
         navigationView.setNavigationItemSelectedListener(this);
+        onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
 
         presenter = new StudentMainPresenter(this);
     }
@@ -52,12 +57,44 @@ public class StudentMainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        } else if (fragmentManager.getBackStackEntryCount() > 0) {
+            int num = fragmentManager.getBackStackEntryCount() - 1;
+            String fragmentTag = fragmentManager
+                    .getBackStackEntryAt(num).getName();
+            Fragment last = fragmentManager.findFragmentByTag(fragmentTag);
+            if (last instanceof OnBackPressedListener &&
+                    ((OnBackPressedListener) last).onBackPressed()) {
+                return;
+            }
+            fragmentManager.popBackStack();
+            if (num == 0) {
+                reverseToolbar();
+            }
         }
+    }
+
+    public void setupToolbarNavigation() {
+        toggle.setDrawerIndicatorEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+    }
+
+    public void reverseToolbar() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setHomeButtonEnabled(false);
+        toggle.setDrawerIndicatorEnabled(true);
+        toggle.setToolbarNavigationClickListener(null);
     }
 
     @Override
@@ -82,16 +119,43 @@ public class StudentMainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+
+    private void clearFragmentStack() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        while (fragmentManager.getBackStackEntryCount() > 0) {
+            fragmentManager.popBackStackImmediate();
+        }
+        reverseToolbar();
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        Class fragmentClass = null;
+        Fragment fragment = null;
         int id = item.getItemId();
 
-        if (id == R.id.nav_log_out) {
-            presenter.logOut();
+        switch (id) {
+            case R.id.nav_statistics_management:
+                fragmentClass = StatisticsManagementFragment.class;
+                break;
+            default:
+                presenter.logOut();
         }
 
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+            Bundle args = new Bundle();
+            args.putString("title", item.getTitle().toString());
+            fragment.setArguments(args);
+            clearFragmentStack();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_main, fragment)
+                    .commit();
+        } catch (Exception e) {
+            Log.v(EdmMainActivity.class.getName(), e.getMessage());
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
