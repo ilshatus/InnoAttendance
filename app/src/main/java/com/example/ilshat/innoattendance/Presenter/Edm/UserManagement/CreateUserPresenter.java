@@ -1,4 +1,4 @@
-package com.example.ilshat.innoattendance.Presenter.Edm;
+package com.example.ilshat.innoattendance.Presenter.Edm.UserManagement;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,7 +11,7 @@ import com.example.ilshat.innoattendance.Model.Model;
 import com.example.ilshat.innoattendance.R;
 import com.example.ilshat.innoattendance.RepositoryModel.Database;
 import com.example.ilshat.innoattendance.RepositoryModel.User;
-import com.example.ilshat.innoattendance.View.Edm.CreateUserFragment;
+import com.example.ilshat.innoattendance.View.Edm.UserManagement.CreateUserFragment;
 
 import static com.example.ilshat.innoattendance.RepositoryModel.Settings.AUTH_PREFERENCES;
 import static com.example.ilshat.innoattendance.RepositoryModel.Settings.DATABASE_LINK;
@@ -23,9 +23,8 @@ public class CreateUserPresenter {
 
     public CreateUserPresenter(CreateUserFragment fragment) {
         this.fragment = fragment;
-        Database database = new Database(DATABASE_LINK);
         SharedPreferences settings = fragment.getActivity().getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE);
-        model = new Model(database, settings);
+        model = new Model(settings);
     }
 
     public void addUser() {

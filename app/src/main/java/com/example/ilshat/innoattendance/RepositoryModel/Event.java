@@ -37,4 +37,9 @@ public class Event {
     public String getDate() {
         return date;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

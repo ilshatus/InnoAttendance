@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/event_create_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -8,50 +9,54 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
         <EditText
-            android:id="@+id/representative_full_name"
+            android:id="@+id/event_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/representative_full_name"
+            android:hint="@string/name"
             android:maxLines="1"
-            android:singleLine="true"
-            />
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
+
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal">
+
         <EditText
-            android:id="@+id/group"
+            android:id="@+id/event_place"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/group"
+            android:hint="@string/auditorium"
             android:maxLines="1"
-            android:singleLine="true"
-            />
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
-    <LinearLayout
+    <android.support.design.widget.TextInputLayout
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <Button
-            android:id="@+id/add_group"
-            style="?android:textAppearanceSmall"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/event_date"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Assign"
-            android:textStyle="bold" />
-        <Button
-            android:id="@+id/delete_group"
-            style="?android:textAppearanceSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="De-assign"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:hint="@string/date"
+            android:inputType="date"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/event_create_btn"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/create"
+        android:textStyle="bold" />
 
 </LinearLayout>

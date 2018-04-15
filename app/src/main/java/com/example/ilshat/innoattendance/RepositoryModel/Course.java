@@ -29,4 +29,9 @@ public class Course {
     public int getSubject() {
         return subjectId;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

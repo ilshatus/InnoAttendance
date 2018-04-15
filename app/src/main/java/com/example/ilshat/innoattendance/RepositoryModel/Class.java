@@ -14,6 +14,10 @@ public class Class {
         this.courseId = courseId;
     }
 
+    public void setTeacher(String teacher) {
+        this.teacher = teacher;
+    }
+
     public int getId() {
         return id;
     }
@@ -28,5 +32,10 @@ public class Class {
 
     public int getCourseId() {
         return courseId;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

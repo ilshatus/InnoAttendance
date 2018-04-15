@@ -1,7 +1,5 @@
 package com.example.ilshat.innoattendance.View.Student;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,24 +10,23 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
+import com.example.ilshat.innoattendance.Presenter.Student.StudentMainPresenter;
 import com.example.ilshat.innoattendance.R;
 
-import static com.example.ilshat.innoattendance.RepositoryModel.Settings.*;
 
 
 public class StudentMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private SharedPreferences mSettings;
-    private boolean navHeaderSet;
+    StudentMainPresenter presenter;
+    ActionBarDrawerToggle toggle;
+    View headerView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mSettings = getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -40,22 +37,19 @@ public class StudentMainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        /**
-         * set corresponding menu
-         */
+
+
         navigationView.inflateMenu(R.menu.student_activity_main_drawer);
-
-        setHeaderStrings(navigationView.getHeaderView(0));
-
+        headerView = navigationView.getHeaderView(0);
         navigationView.setNavigationItemSelectedListener(this);
+
+        presenter = new StudentMainPresenter(this);
     }
 
-    private void setHeaderStrings(View view) {
-        TextView textView = (TextView) view.findViewById(R.id.nav_header_name);
-        textView.setText(mSettings.getString(USERNAME, ""));
-        textView = (TextView) view.findViewById(R.id.nav_header_email);
-        textView.setText(mSettings.getString(EMAIL, ""));
+    public View getHeaderView() {
+        return headerView;
     }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -82,17 +76,10 @@ public class StudentMainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.log_out) {
-            logOut();
+            presenter.logOut();
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    private void logOut() {
-        SharedPreferences.Editor editor = mSettings.edit();
-        editor.clear();
-        editor.apply();
-        finish();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -102,7 +89,7 @@ public class StudentMainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_log_out) {
-            logOut();
+            presenter.logOut();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

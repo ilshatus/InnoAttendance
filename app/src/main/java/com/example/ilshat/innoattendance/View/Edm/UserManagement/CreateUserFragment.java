@@ -1,4 +1,4 @@
-package com.example.ilshat.innoattendance.View.Edm;
+package com.example.ilshat.innoattendance.View.Edm.UserManagement;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.ilshat.innoattendance.Presenter.Edm.CreateUserPresenter;
+import com.example.ilshat.innoattendance.Presenter.Edm.UserManagement.CreateUserPresenter;
 import com.example.ilshat.innoattendance.R;
 
 

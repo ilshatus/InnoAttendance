@@ -1,4 +1,4 @@
-package com.example.ilshat.innoattendance.View.Edm;
+package com.example.ilshat.innoattendance.View.Edm.UserManagement;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -11,33 +11,33 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.ilshat.innoattendance.Presenter.Edm.RepresentativeGroupsPresenter;
+import com.example.ilshat.innoattendance.Presenter.Edm.UserManagement.StudentGroupsPresenter;
 import com.example.ilshat.innoattendance.R;
 
 
-public class RepresentativeGroupsFragment extends Fragment {
-    private RepresentativeGroupsPresenter presenter;
+public class StudentGroupsFragment extends Fragment {
+    private StudentGroupsPresenter presenter;
     private ProgressDialog progressDialog;
 
-    private TextView representativeName;
+    private TextView studentName;
     private TextView groupName;
 
-    public RepresentativeGroupsFragment() {
+    public StudentGroupsFragment() {
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.representative_groups, container, false);
+        View rootView = inflater.inflate(R.layout.student_groups, container, false);
         getActivity().setTitle(getArguments().getString("title"));
-        presenter = new RepresentativeGroupsPresenter(this);
-        representativeName = (TextView) rootView.findViewById(R.id.representative_full_name);
+        presenter = new StudentGroupsPresenter(this);
+        studentName = (TextView) rootView.findViewById(R.id.student_full_name);
         groupName = (TextView) rootView.findViewById(R.id.group);
 
-        representativeName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        studentName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                presenter.findRepresentative();
+                presenter.findStudent();
                 return false;
             }
         });
@@ -67,9 +67,8 @@ public class RepresentativeGroupsFragment extends Fragment {
         return rootView;
     }
 
-
-    public TextView getRepresentativeName() {
-        return representativeName;
+    public TextView getStudentName() {
+        return studentName;
     }
 
     public TextView getGroupName() {

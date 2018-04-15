@@ -1,7 +1,5 @@
 package com.example.ilshat.innoattendance.View.Edm;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -15,24 +13,25 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
+import com.example.ilshat.innoattendance.Presenter.Edm.EdmMainPresenter;
 import com.example.ilshat.innoattendance.R;
 import com.example.ilshat.innoattendance.View.Common.StatisticsManagementFragment;
-
-import static com.example.ilshat.innoattendance.RepositoryModel.Settings.*;
+import com.example.ilshat.innoattendance.View.Edm.EducationManagement.EducationManagementFragment;
+import com.example.ilshat.innoattendance.View.Edm.EducationManagement.SubjectManagementFragment;
+import com.example.ilshat.innoattendance.View.Edm.UserManagement.UserManagementFragment;
+import com.example.ilshat.innoattendance.View.OnBackPressedListener;
 
 public class EdmMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private SharedPreferences mSettings;
-
+    EdmMainPresenter presenter;
     ActionBarDrawerToggle toggle;
+    View headerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mSettings = getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -44,21 +43,17 @@ public class EdmMainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
 
-        /*
-         * set corresponding menu
-         */
         navigationView.inflateMenu(R.menu.edm_activity_main_drawer);
-
-        setHeaderStrings(navigationView.getHeaderView(0));
+        headerView = navigationView.getHeaderView(0);
         navigationView.setNavigationItemSelectedListener(this);
         onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
+
+        presenter = new EdmMainPresenter(this);
+
     }
 
-    private void setHeaderStrings(View view) {
-        TextView textView = (TextView) view.findViewById(R.id.nav_header_name);
-        textView.setText(mSettings.getString(USERNAME, ""));
-        textView = (TextView) view.findViewById(R.id.nav_header_email);
-        textView.setText(mSettings.getString(EMAIL, ""));
+    public View getHeaderView() {
+        return headerView;
     }
 
     @Override
@@ -69,12 +64,21 @@ public class EdmMainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else if (fragmentManager.getBackStackEntryCount() > 0) {
-            fragmentManager.popBackStackImmediate();
-            if (fragmentManager.getBackStackEntryCount() == 0) {
+            int num = fragmentManager.getBackStackEntryCount() - 1;
+            String fragmentTag = fragmentManager
+                    .getBackStackEntryAt(num).getName();
+            Fragment last = fragmentManager.findFragmentByTag(fragmentTag);
+            if (last instanceof OnBackPressedListener &&
+                    ((OnBackPressedListener) last).onBackPressed()) {
+                return;
+            }
+            fragmentManager.popBackStack();
+            if (num == 0) {
                 reverseToolbar();
             }
         }
     }
+
 
     public void setupToolbarNavigation() {
         toggle.setDrawerIndicatorEnabled(false);
@@ -110,16 +114,9 @@ public class EdmMainActivity extends AppCompatActivity
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.log_out) {
-            logOut();
+            presenter.logOut();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void logOut() {
-        SharedPreferences.Editor editor = mSettings.edit();
-        editor.clear();
-        editor.apply();
-        finish();
     }
 
     private void clearFragmentStack() {
@@ -149,7 +146,7 @@ public class EdmMainActivity extends AppCompatActivity
                 fragmentClass = StatisticsManagementFragment.class;
                 break;
             default:
-                logOut();
+                presenter.logOut();
         }
 
         try {

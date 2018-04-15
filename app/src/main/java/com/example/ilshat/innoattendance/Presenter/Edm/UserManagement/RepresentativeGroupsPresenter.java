@@ -1,4 +1,4 @@
-package com.example.ilshat.innoattendance.Presenter.Edm;
+package com.example.ilshat.innoattendance.Presenter.Edm.UserManagement;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,49 +10,48 @@ import com.example.ilshat.innoattendance.R;
 import com.example.ilshat.innoattendance.RepositoryModel.Database;
 import com.example.ilshat.innoattendance.RepositoryModel.Group;
 import com.example.ilshat.innoattendance.RepositoryModel.User;
-import com.example.ilshat.innoattendance.View.Edm.StudentGroupsFragment;
+import com.example.ilshat.innoattendance.View.Edm.UserManagement.RepresentativeGroupsFragment;
 
 import static com.example.ilshat.innoattendance.RepositoryModel.Settings.AUTH_PREFERENCES;
 import static com.example.ilshat.innoattendance.RepositoryModel.Settings.DATABASE_LINK;
 
 
-public class StudentGroupsPresenter {
-    private StudentGroupsFragment fragment;
+public class RepresentativeGroupsPresenter {
+    private RepresentativeGroupsFragment fragment;
     private Model model;
-    private User student = null;
+    private User representative = null;
     private Group group = null;
 
-    public StudentGroupsPresenter(StudentGroupsFragment fragment) {
+    public RepresentativeGroupsPresenter(RepresentativeGroupsFragment fragment) {
         this.fragment = fragment;
-        Database database = new Database(DATABASE_LINK);
         SharedPreferences settings = fragment.getActivity().getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE);
-        model = new Model(database, settings);
+        model = new Model(settings);
     }
 
-    public void setStudent(User student) {
-        this.student = student;
+    public void setRepresentative(User representative) {
+        this.representative = representative;
     }
 
     public void setGroup(Group group) {
         this.group = group;
     }
 
-    public void findStudent() {
-        final TextView studentName = fragment.getStudentName();
-        String sStudentName = studentName.getText().toString();
+    public void findRepresentative() {
+        final TextView representativeName = fragment.getRepresentativeName();
+        String sRepresentativeName = representativeName.getText().toString();
         final String fieldIsRequired = fragment.getActivity().getString(R.string.error_field_required);
         final String notFound = fragment.getActivity().getString(R.string.error_not_found);
-        setStudent(null);
-        if (sStudentName.isEmpty()) {
-            studentName.setError(fieldIsRequired);
+        setRepresentative(null);
+        if (sRepresentativeName.isEmpty()) {
+            representativeName.setError(fieldIsRequired);
         } else {
-            model.getUser(sStudentName, new Model.GetUserCallback() {
+            model.getUser(sRepresentativeName, new Model.GetUserCallback() {
                 @Override
                 public void onComplete(User user) {
-                    if (user == null) {
-                        studentName.setError(notFound);
+                    if (user != null) {
+                        setRepresentative(user);
                     } else {
-                        setStudent(user);
+                        representativeName.setError(notFound);
                     }
                 }
             });
@@ -82,13 +81,13 @@ public class StudentGroupsPresenter {
     }
 
     public void addToGroup() {
-        if (student == null || group == null) {
+        if (representative == null || group == null) {
             findGroup();
-            findStudent();
+            findRepresentative();
         }
-        if (student != null && group != null) {
+        if (representative != null && group != null) {
             fragment.showProgress();
-            model.addStudentToGroup(student, group, new Model.CompleteCallback() {
+            model.addRepresentativeToGroup(representative, group, new Model.CompleteCallback() {
                 @Override
                 public void onComplete(Boolean success) {
                     fragment.hideProgress();
@@ -98,7 +97,7 @@ public class StudentGroupsPresenter {
                     group = null;
                     if (success != null && success) {
                         Toast toast = Toast.makeText(fragment.getContext(),
-                                "Group added", Toast.LENGTH_SHORT);
+                                "Group assigned", Toast.LENGTH_SHORT);
                         toast.show();
                     } else {
                         Toast toast = Toast.makeText(fragment.getContext(),
@@ -111,13 +110,13 @@ public class StudentGroupsPresenter {
     }
 
     public void deleteFromGroup() {
-        if (student == null || group == null) {
+        if (representative == null || group == null) {
             findGroup();
-            findStudent();
+            findRepresentative();
         }
-        if (student != null && group != null) {
+        if (representative != null && group != null) {
             fragment.showProgress();
-            model.deleteStudentFromGroup(student, group, new Model.CompleteCallback() {
+            model.deleteRepresentativeFromGroup(representative, group, new Model.CompleteCallback() {
                 @Override
                 public void onComplete(Boolean success) {
                     fragment.hideProgress();
@@ -127,13 +126,12 @@ public class StudentGroupsPresenter {
                     group = null;
                     if (success != null && success) {
                         Toast toast = Toast.makeText(fragment.getContext(),
-                                "Group deleted", Toast.LENGTH_SHORT);
+                                "Group de-assigned", Toast.LENGTH_SHORT);
                         toast.show();
                     } else {
                         Toast toast = Toast.makeText(fragment.getContext(),
                                 "Some error happened", Toast.LENGTH_SHORT);
                         toast.show();
-
                     }
                 }
             });

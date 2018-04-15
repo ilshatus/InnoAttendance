@@ -1,4 +1,4 @@
-package com.example.ilshat.innoattendance.Presenter.Edm;
+package com.example.ilshat.innoattendance.Presenter.Representative;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -7,15 +7,15 @@ import android.widget.TextView;
 
 import com.example.ilshat.innoattendance.Model.Model;
 import com.example.ilshat.innoattendance.R;
-import com.example.ilshat.innoattendance.View.Edm.EdmMainActivity;
+import com.example.ilshat.innoattendance.View.Representative.ReprMainActivity;
 
 import static com.example.ilshat.innoattendance.RepositoryModel.Settings.AUTH_PREFERENCES;
 
-public class EdmMainPresenter {
-    private final EdmMainActivity activity;
+public class ReprMainPresenter {
+    private final ReprMainActivity activity;
     private final Model model;
 
-    public EdmMainPresenter(EdmMainActivity activity) {
+    public ReprMainPresenter(ReprMainActivity activity) {
         this.activity = activity;
         SharedPreferences settings = activity.getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE);
         model = new Model(settings);

@@ -25,9 +25,8 @@ public class LoginPresenter {
 
     public LoginPresenter(LoginActivity activity) {
         this.activity = activity;
-        Database database = new Database(DATABASE_LINK);
         settings = activity.getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE);
-        model = new Model(database, settings);
+        model = new Model(settings);
         attemptAutoLogin();
     }
 

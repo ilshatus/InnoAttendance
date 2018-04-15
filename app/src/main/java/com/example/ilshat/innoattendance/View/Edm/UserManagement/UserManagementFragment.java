@@ -1,4 +1,4 @@
-package com.example.ilshat.innoattendance.View.Edm;
+package com.example.ilshat.innoattendance.View.Edm.UserManagement;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.ilshat.innoattendance.R;
+import com.example.ilshat.innoattendance.View.Edm.EdmMainActivity;
 import com.example.ilshat.innoattendance.View.ListItemArrayAdapter;
 
 public class UserManagementFragment extends Fragment
@@ -67,8 +68,8 @@ public class UserManagementFragment extends Fragment
             fragment.setArguments(args);
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_main, fragment)
-                    .addToBackStack(null)
+                    .replace(R.id.content_main, fragment, labels[position])
+                    .addToBackStack(labels[position])
                     .commit();
             EdmMainActivity mainActivity = (EdmMainActivity) getActivity();
             mainActivity.setupToolbarNavigation();

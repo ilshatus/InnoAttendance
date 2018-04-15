@@ -1,4 +1,4 @@
-package com.example.ilshat.innoattendance.Presenter.Edm;
+package com.example.ilshat.innoattendance.Presenter.Edm.UserManagement;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,49 +10,48 @@ import com.example.ilshat.innoattendance.R;
 import com.example.ilshat.innoattendance.RepositoryModel.Database;
 import com.example.ilshat.innoattendance.RepositoryModel.Group;
 import com.example.ilshat.innoattendance.RepositoryModel.User;
-import com.example.ilshat.innoattendance.View.Edm.RepresentativeGroupsFragment;
+import com.example.ilshat.innoattendance.View.Edm.UserManagement.StudentGroupsFragment;
 
 import static com.example.ilshat.innoattendance.RepositoryModel.Settings.AUTH_PREFERENCES;
 import static com.example.ilshat.innoattendance.RepositoryModel.Settings.DATABASE_LINK;
 
 
-public class RepresentativeGroupsPresenter {
-    private RepresentativeGroupsFragment fragment;
+public class StudentGroupsPresenter {
+    private StudentGroupsFragment fragment;
     private Model model;
-    private User representative = null;
+    private User student = null;
     private Group group = null;
 
-    public RepresentativeGroupsPresenter(RepresentativeGroupsFragment fragment) {
+    public StudentGroupsPresenter(StudentGroupsFragment fragment) {
         this.fragment = fragment;
-        Database database = new Database(DATABASE_LINK);
         SharedPreferences settings = fragment.getActivity().getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE);
-        model = new Model(database, settings);
+        model = new Model(settings);
     }
 
-    public void setRepresentative(User representative) {
-        this.representative = representative;
+    public void setStudent(User student) {
+        this.student = student;
     }
 
     public void setGroup(Group group) {
         this.group = group;
     }
 
-    public void findRepresentative() {
-        final TextView representativeName = fragment.getRepresentativeName();
-        String sRepresentativeName = representativeName.getText().toString();
+    public void findStudent() {
+        final TextView studentName = fragment.getStudentName();
+        String sStudentName = studentName.getText().toString();
         final String fieldIsRequired = fragment.getActivity().getString(R.string.error_field_required);
         final String notFound = fragment.getActivity().getString(R.string.error_not_found);
-        setRepresentative(null);
-        if (sRepresentativeName.isEmpty()) {
-            representativeName.setError(fieldIsRequired);
+        setStudent(null);
+        if (sStudentName.isEmpty()) {
+            studentName.setError(fieldIsRequired);
         } else {
-            model.getUser(sRepresentativeName, new Model.GetUserCallback() {
+            model.getUser(sStudentName, new Model.GetUserCallback() {
                 @Override
                 public void onComplete(User user) {
-                    if (user != null && user.getStatus().equals("representative")) {
-                        setRepresentative(user);
+                    if (user == null) {
+                        studentName.setError(notFound);
                     } else {
-                        representativeName.setError(notFound);
+                        setStudent(user);
                     }
                 }
             });
@@ -82,13 +81,13 @@ public class RepresentativeGroupsPresenter {
     }
 
     public void addToGroup() {
-        if (representative == null || group == null) {
+        if (student == null || group == null) {
             findGroup();
-            findRepresentative();
+            findStudent();
         }
-        if (representative != null && group != null) {
+        if (student != null && group != null) {
             fragment.showProgress();
-            model.addRepresentativeToGroup(representative, group, new Model.CompleteCallback() {
+            model.addStudentToGroup(student, group, new Model.CompleteCallback() {
                 @Override
                 public void onComplete(Boolean success) {
                     fragment.hideProgress();
@@ -98,7 +97,7 @@ public class RepresentativeGroupsPresenter {
                     group = null;
                     if (success != null && success) {
                         Toast toast = Toast.makeText(fragment.getContext(),
-                                "Group assigned", Toast.LENGTH_SHORT);
+                                "Group added", Toast.LENGTH_SHORT);
                         toast.show();
                     } else {
                         Toast toast = Toast.makeText(fragment.getContext(),
@@ -111,13 +110,13 @@ public class RepresentativeGroupsPresenter {
     }
 
     public void deleteFromGroup() {
-        if (representative == null || group == null) {
+        if (student == null || group == null) {
             findGroup();
-            findRepresentative();
+            findStudent();
         }
-        if (representative != null && group != null) {
+        if (student != null && group != null) {
             fragment.showProgress();
-            model.deleteRepresentativeFromGroup(representative, group, new Model.CompleteCallback() {
+            model.deleteStudentFromGroup(student, group, new Model.CompleteCallback() {
                 @Override
                 public void onComplete(Boolean success) {
                     fragment.hideProgress();
@@ -127,12 +126,13 @@ public class RepresentativeGroupsPresenter {
                     group = null;
                     if (success != null && success) {
                         Toast toast = Toast.makeText(fragment.getContext(),
-                                "Group de-assigned", Toast.LENGTH_SHORT);
+                                "Group deleted", Toast.LENGTH_SHORT);
                         toast.show();
                     } else {
                         Toast toast = Toast.makeText(fragment.getContext(),
                                 "Some error happened", Toast.LENGTH_SHORT);
                         toast.show();
+
                     }
                 }
             });

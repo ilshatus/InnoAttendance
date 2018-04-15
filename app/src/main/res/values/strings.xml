@@ -36,11 +36,22 @@
     <string name="delete_from_group">Delete</string>
 
     <string name="error_not_found">Not found</string>
-    <string name="representative_full_name">Representative full name</string>>
+    <string name="representative_full_name">Representative full name</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="rename">Rename</string>
+    <string name="courses">Courses</string>
+    <string name="classes">Classes</string>
+    <string name="year">Year</string>
+    <string name="teacher">Teacher</string>
+    <string name="events">Events</string>
+    <string name="groups">Groups</string>
+    <string name="auditorium">Auditorium</string>
+    <string name="date">Date</string>>
 
     <string-array name="statuses">
         <item>edm</item>
-        <item>representative</item>
+        <item>student</item>
         <item>representative</item>
     </string-array>
 </resources>

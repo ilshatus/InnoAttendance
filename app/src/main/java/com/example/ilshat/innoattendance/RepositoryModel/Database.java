@@ -1,20 +1,27 @@
-//import android.util.Log;
 package com.example.ilshat.innoattendance.RepositoryModel;
 
 import okhttp3.*;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
+import android.util.Log;
+
 
 public class Database {
-    //private static final String CLASS = "Database module";
+    private static final String CLASS = "Database module";
 
     private String link;
     private OkHttpClient client;
+    private static Database db;
 
-    public Database(String link) {
+    private Database(String link) {
         this.link = link;
         client = new OkHttpClient();
+    }
+
+    public static Database getInstance() {
+        if(db == null)
+            db = new Database(Settings.DATABASE_LINK);
+        return db;
     }
 
     public String login(String email, String password) {
@@ -23,14 +30,10 @@ public class Database {
             requestBody.put("do", "login");
             requestBody.put("email", email);
             requestBody.put("password", password);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) ? json.getString("token") : null;
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -46,22 +49,10 @@ public class Database {
             requestBody.put("email", email);
             requestBody.put("password", password);
             requestBody.put("status", status);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-
-            return (json != null)
-                    ? new User(json.getString("id"),
-                    json.getString("name"),
-                    json.getString("surname"),
-                    json.getString("email"),
-                    json.getString("status"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseUser(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -77,22 +68,10 @@ public class Database {
             requestBody.put("email", email);
             requestBody.put("password", password);
             requestBody.put("status", status);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-
-            return (json != null)
-                    ? new User(json.getString("id"),
-                    json.getString("name"),
-                    json.getString("surname"),
-                    json.getString("email"),
-                    json.getString("status"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseUser(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -104,14 +83,10 @@ public class Database {
             requestBody.put("token", token);
             requestBody.put("student", student.getId());
             requestBody.put("group", group.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -123,14 +98,10 @@ public class Database {
             requestBody.put("token", token);
             requestBody.put("student", student.getId());
             requestBody.put("group", group.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -142,11 +113,7 @@ public class Database {
             requestBody.put("token", token);
             requestBody.put("student", student.getId());
             requestBody.put("group", group.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             if((json != null) && json.getString("result").equals("OK")) {
                 if(json.getString("statusUpdated").equals("updated")){
                     student.setStatus("representative");
@@ -155,7 +122,7 @@ public class Database {
             }
             return false;
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -166,14 +133,10 @@ public class Database {
             requestBody.put("do", "detachRepresentativeFromGroup");
             requestBody.put("token", token);
             requestBody.put("group", group.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -184,18 +147,10 @@ public class Database {
             requestBody.put("do", "createSubject");
             requestBody.put("token", token);
             requestBody.put("subject", subject);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            //System.out.println(response.string());
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-            return (json != null)
-                    ? new Subject(json.getInt("id"),
-                    json.getString("name"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseSubject(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -208,19 +163,10 @@ public class Database {
             requestBody.put("subject", subject.getId());
             requestBody.put("course", course);
             requestBody.put("year", year);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-            return (json != null)
-                    ? new Course(json.getInt("id"),
-                    json.getString("name"),
-                    json.getString("year"),
-                    json.getInt("subject"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseCourse(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -231,14 +177,10 @@ public class Database {
             requestBody.put("do", "removeCourse");
             requestBody.put("token", token);
             requestBody.put("course", course.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -250,19 +192,10 @@ public class Database {
             requestBody.put("token", token);
             requestBody.put("course", course.getId());
             requestBody.put("className", className);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-            return (json != null)
-                    ? new Class(json.getInt("id"),
-                    json.getString("name"),
-                    json.getString("teacher"),
-                    json.getInt("course"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseClass(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -273,14 +206,10 @@ public class Database {
             requestBody.put("do", "removeClass");
             requestBody.put("token", token);
             requestBody.put("class", classInstance.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -292,14 +221,10 @@ public class Database {
             requestBody.put("token", token);
             requestBody.put("class", classInstance.getId());
             requestBody.put("teacher", teacher);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -313,20 +238,10 @@ public class Database {
             requestBody.put("name", name);
             requestBody.put("place", place);
             requestBody.put("date", date);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-            return (json != null)
-                    ? new Event(json.getInt("id"),
-                    json.getInt("class"),
-                    json.getString("name"),
-                    json.getString("place"),
-                    json.getString("date"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseEvent(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -337,14 +252,10 @@ public class Database {
             requestBody.put("do", "removeEvent");
             requestBody.put("token", token);
             requestBody.put("event", event.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -356,14 +267,10 @@ public class Database {
             requestBody.put("token", token);
             requestBody.put("class", classInstance.getId());
             requestBody.put("group", group.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -375,17 +282,10 @@ public class Database {
             requestBody.put("token", token);
             requestBody.put("class", classInstance.getId());
             requestBody.put("group", group);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-            return (json != null)
-                    ? new Group(json.getString("id"),
-                    json.getString("representative"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseGroup(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -397,14 +297,10 @@ public class Database {
             requestBody.put("token", token);
             requestBody.put("class", classInstance.getId());
             requestBody.put("group", group.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -414,22 +310,10 @@ public class Database {
             JSONObject requestBody = new JSONObject();
             requestBody.put("do", "getUser");
             requestBody.put("token", token);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-
-            return (json != null)
-                    ? new User(json.getString("id"),
-                        json.getString("name"),
-                        json.getString("surname"),
-                        json.getString("email"),
-                        json.getString("status"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseUser(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -439,23 +323,10 @@ public class Database {
             JSONObject requestBody = new JSONObject();
             requestBody.put("do", "getListOfSubjects");
             requestBody.put("token", token);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-                ArrayList<Subject> result = new ArrayList<Subject>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Subject(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfSubjects(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -465,23 +336,10 @@ public class Database {
             JSONObject requestBody = new JSONObject();
             requestBody.put("do", "getListOfSubjectsForRepresentative");
             requestBody.put("token", token);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-                ArrayList<Subject> result = new ArrayList<Subject>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Subject(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfSubjects(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -491,23 +349,10 @@ public class Database {
             JSONObject requestBody = new JSONObject();
             requestBody.put("do", "getListOfSubjectsForStudent");
             requestBody.put("token", token);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-                ArrayList<Subject> result = new ArrayList<Subject>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Subject(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfSubjects(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -518,26 +363,10 @@ public class Database {
             requestBody.put("do", "getListOfCourses");
             requestBody.put("token", token);
             requestBody.put("subject", subject.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Course> result = new ArrayList<Course>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Course(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("year"),
-                            json.getJSONObject(Integer.toString(i)).getInt("subject")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfCourses(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -548,26 +377,10 @@ public class Database {
             requestBody.put("do", "getListOfCoursesForRepresentative");
             requestBody.put("token", token);
             requestBody.put("subject", subject.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Course> result = new ArrayList<Course>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Course(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("year"),
-                            json.getJSONObject(Integer.toString(i)).getInt("subject")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfCourses(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -578,26 +391,10 @@ public class Database {
             requestBody.put("do", "getListOfCoursesForStudent");
             requestBody.put("token", token);
             requestBody.put("subject", subject.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Course> result = new ArrayList<Course>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Course(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("year"),
-                            json.getJSONObject(Integer.toString(i)).getInt("subject")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfCourses(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -608,26 +405,10 @@ public class Database {
             requestBody.put("do", "getListOfClasses");
             requestBody.put("token", token);
             requestBody.put("course", course.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Class> result = new ArrayList<Class>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Class(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("teacher"),
-                            json.getJSONObject(Integer.toString(i)).getInt("course")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfClasses(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -638,26 +419,11 @@ public class Database {
             requestBody.put("do", "getListOfClassesForRepresentative");
             requestBody.put("token", token);
             requestBody.put("course", course.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Class> result = new ArrayList<Class>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Class(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("teacher"),
-                            json.getJSONObject(Integer.toString(i)).getInt("course")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            ArrayList<Class> result = new ArrayList<Class>();
+            return parseArrayOfClasses(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -668,26 +434,10 @@ public class Database {
             requestBody.put("do", "getListOfClassesForStudent");
             requestBody.put("token", token);
             requestBody.put("course", course.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Class> result = new ArrayList<Class>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Class(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("teacher"),
-                            json.getJSONObject(Integer.toString(i)).getInt("course")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfClasses(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -698,24 +448,10 @@ public class Database {
             requestBody.put("do", "getListOfGroups");
             requestBody.put("token", token);
             requestBody.put("class", classInstance.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Group> result = new ArrayList<Group>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Group(json.getJSONObject(Integer.toString(i)).getString("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("representative")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfGroups(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -726,24 +462,10 @@ public class Database {
             requestBody.put("do", "getListOfGroupsForRepresentative");
             requestBody.put("token", token);
             requestBody.put("class", classInstance.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Group> result = new ArrayList<Group>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Group(json.getJSONObject(Integer.toString(i)).getString("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("representative")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfGroups(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -754,24 +476,10 @@ public class Database {
             requestBody.put("do", "getListOfGroupsForStudent");
             requestBody.put("token", token);
             requestBody.put("class", classInstance.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Group> result = new ArrayList<Group>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Group(json.getJSONObject(Integer.toString(i)).getString("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("representative")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfGroups(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -781,27 +489,10 @@ public class Database {
             JSONObject requestBody = new JSONObject();
             requestBody.put("do", "getListOfStudents");
             requestBody.put("token", token);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<User> result = new ArrayList<User>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new User(json.getJSONObject(Integer.toString(i)).getString("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("surname"),
-                            json.getJSONObject(Integer.toString(i)).getString("email"),
-                            json.getJSONObject(Integer.toString(i)).getString("status")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfUsers(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -812,27 +503,10 @@ public class Database {
             requestBody.put("do", "getListOfStudentsOfGroup");
             requestBody.put("token", token);
             requestBody.put("group", group.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<User> result = new ArrayList<User>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new User(json.getJSONObject(Integer.toString(i)).getString("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("surname"),
-                            json.getJSONObject(Integer.toString(i)).getString("email"),
-                            json.getJSONObject(Integer.toString(i)).getString("status")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfUsers(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -843,27 +517,10 @@ public class Database {
             requestBody.put("do", "getListOfEvents");
             requestBody.put("token", token);
             requestBody.put("class", classInstance.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Event> result = new ArrayList<Event>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Event(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getInt("class"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("place"),
-                            json.getJSONObject(Integer.toString(i)).getString("date")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfEvents(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -874,26 +531,10 @@ public class Database {
             requestBody.put("do", "getStudentsAttended");
             requestBody.put("token", token);
             requestBody.put("event", event.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<User> result = new ArrayList<User>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new User(json.getJSONObject(Integer.toString(i)).getString("id"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("surname"),
-                            json.getJSONObject(Integer.toString(i)).getString("email"),
-                            json.getJSONObject(Integer.toString(i)).getString("status")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfUsers(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -910,13 +551,10 @@ public class Database {
             requestBody.put("event", event.getId());
             requestBody.put("list", list);
 
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
+            JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return false;
         }
     }
@@ -928,27 +566,10 @@ public class Database {
             requestBody.put("token", token);
             requestBody.put("student", student.getId());
             requestBody.put("class", classInstance.getId());
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            if(response != null) {
-                JSONObject json = new JSONObject(response.string());
-
-                ArrayList<Event> result = new ArrayList<Event>();
-                for(int i = 0; i < json.length(); i++) {
-                    result.add(new Event(json.getJSONObject(Integer.toString(i)).getInt("id"),
-                            json.getJSONObject(Integer.toString(i)).getInt("class"),
-                            json.getJSONObject(Integer.toString(i)).getString("name"),
-                            json.getJSONObject(Integer.toString(i)).getString("place"),
-                            json.getJSONObject(Integer.toString(i)).getString("date")));
-                }
-                return result;
-            }
-            return null;
+            JSONObject json = send(requestBody);
+            return parseArrayOfEvents(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -959,22 +580,10 @@ public class Database {
             requestBody.put("do", "getUserByName");
             requestBody.put("token", token);
             requestBody.put("fullName", fullName);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-
-            return (json != null)
-                    ? new User(json.getString("id"),
-                    json.getString("name"),
-                    json.getString("surname"),
-                    json.getString("email"),
-                    json.getString("status"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseUser(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
     }
@@ -985,20 +594,142 @@ public class Database {
             requestBody.put("do", "getGroupByName");
             requestBody.put("token", token);
             requestBody.put("name", name);
-
-            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), requestBody.toString());
-            Request request = new Request.Builder().url(link).post(body).build();
-            ResponseBody response = client.newCall(request).execute().body();
-
-            JSONObject json = (response != null) ? new JSONObject(response.string()) : null;
-
-            return (json != null)
-                    ? new Group(json.getString("id"),
-                    json.getString("representative"))
-                    : null;
+            JSONObject json = send(requestBody);
+            return parseGroup(json);
         } catch(Exception e) {
-            //Log.v(CLASS, e.getMessage());
+            Log.v(CLASS, e.getMessage());
             return null;
         }
+    }
+
+    private JSONObject send(JSONObject requestBody) throws Exception {
+        RequestBody body = RequestBody.create(MediaType.parse("text/plain; charset=utf-8"), encode(requestBody.toString()));
+        Request request = new Request.Builder().url(link).post(body).build();
+        ResponseBody response = client.newCall(request).execute().body();
+        return (response == null) ? null : new JSONObject(decode(response.string()));
+    }
+
+    private ArrayList<User> parseArrayOfUsers(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        ArrayList<User> result = new ArrayList<User>();
+        for(int i = 0; i < json.length(); i++)
+            result.add(parseUser(json.getJSONObject(Integer.toString(i))));
+        return result;
+    }
+
+    private ArrayList<Subject> parseArrayOfSubjects(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        ArrayList<Subject> result = new ArrayList<Subject>();
+        for(int i = 0; i < json.length(); i++)
+            result.add(parseSubject(json.getJSONObject(Integer.toString(i))));
+        return result;
+    }
+
+    private ArrayList<Course> parseArrayOfCourses(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        ArrayList<Course> result = new ArrayList<Course>();
+        for(int i = 0; i < json.length(); i++)
+            result.add(parseCourse(json.getJSONObject(Integer.toString(i))));
+        return result;
+    }
+
+    private ArrayList<Class> parseArrayOfClasses(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        ArrayList<Class> result = new ArrayList<Class>();
+        for(int i = 0; i < json.length(); i++)
+            result.add(parseClass(json.getJSONObject(Integer.toString(i))));
+        return result;
+    }
+
+    private ArrayList<Event> parseArrayOfEvents(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        ArrayList<Event> result = new ArrayList<Event>();
+        for(int i = 0; i < json.length(); i++)
+            result.add(parseEvent(json.getJSONObject(Integer.toString(i))));
+        return result;
+    }
+
+    private ArrayList<Group> parseArrayOfGroups(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        ArrayList<Group> result = new ArrayList<Group>();
+        for(int i = 0; i < json.length(); i++)
+            result.add(parseGroup(json.getJSONObject(Integer.toString(i))));
+        return result;
+    }
+
+    private User parseUser(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        return new User(json.getString("id"),
+                json.getString("name"),
+                json.getString("surname"),
+                json.getString("email"),
+                json.getString("status"));
+    }
+
+    private Subject parseSubject(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        return new Subject(json.getInt("id"),
+                json.getString("name"));
+    }
+
+    private Course parseCourse(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        return new Course(json.getInt("id"),
+                json.getString("name"),
+                json.getString("year"),
+                json.getInt("subject"));
+    }
+
+    private Class parseClass(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        return new Class(json.getInt("id"),
+                json.getString("name"),
+                json.getString("teacher"),
+                json.getInt("course"));
+    }
+
+    private Event parseEvent(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        return new Event(json.getInt("id"),
+                json.getInt("class"),
+                json.getString("name"),
+                json.getString("place"),
+                json.getString("date"));
+    }
+
+    private Group parseGroup(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        return new Group(json.getString("id"),
+                json.getString("representative"));
+    }
+
+    private String encode(String string) throws Exception {
+        String key = "abcdefghi";
+        String result = "";
+        for(int i = 0; i < string.length(); i++)
+            result = result.concat(Character.toString((char) (32 + (string.charAt(i) - 32 + key.charAt(i%key.length()) - 32) % 95)));
+        return result;
+    }
+
+    private String decode(String string) throws Exception {
+        String key = "abcdefghi";
+        String result = "";
+        for(int i = 0; i < string.length(); i++) {
+            int temp = string.charAt(i) - key.charAt(i%key.length()) + 32;
+            result = result.concat(Character.toString((char) ((temp < 32) ? temp + 95 : temp)));
+        }
+        return result;
     }
 }

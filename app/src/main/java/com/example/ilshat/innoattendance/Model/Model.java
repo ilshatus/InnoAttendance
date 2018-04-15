@@ -3,13 +3,17 @@ package com.example.ilshat.innoattendance.Model;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
-import com.example.ilshat.innoattendance.R;
+import com.example.ilshat.innoattendance.RepositoryModel.Class;
+import com.example.ilshat.innoattendance.RepositoryModel.Course;
 import com.example.ilshat.innoattendance.RepositoryModel.Database;
+import com.example.ilshat.innoattendance.RepositoryModel.Event;
+import com.example.ilshat.innoattendance.RepositoryModel.Subject;
 import com.example.ilshat.innoattendance.RepositoryModel.User;
 import com.example.ilshat.innoattendance.RepositoryModel.Group;
 
+
+import java.util.ArrayList;
 
 import static com.example.ilshat.innoattendance.RepositoryModel.Settings.*;
 
@@ -26,12 +30,67 @@ public class Model {
         void onComplete(User user);
     }
 
+    public interface GetHeaderInfoCallback {
+        void onComplete(String userName, String email);
+    }
+
+    public interface GetSubjectsCallback {
+        void onComplete(ArrayList<Subject> subjects);
+    }
+
+    public interface CreateSubjectCallback {
+        void onComplete(Subject subject);
+    }
+
+    public interface GetCoursesCallback {
+        void onComplete(ArrayList<Course> courses);
+    }
+
+    public interface CreateCourseCallback {
+        void onComplete(Course course);
+    }
+
+    public interface GetClassesCallback {
+        void onComplete(ArrayList<Class> classes);
+    }
+
+    public interface CreateClassCallback {
+        void onComplete(Class _class);
+    }
+
+    public interface GetEventsCallback {
+        void onComplete(ArrayList<Event> events);
+    }
+
+    public interface CreateEventCallback {
+        void onComplete(Event event);
+    }
+
+    public interface GetGroupsCallback {
+        void onComplete(ArrayList<Group> groups);
+    }
+
+    public interface CreateGroupCallback {
+        void onComplete(Group group);
+    }
+
     private final Database database;
     private final SharedPreferences settings;
 
-    public Model(Database database, SharedPreferences settings) {
-        this.database = database;
+    public Model(SharedPreferences settings) {
+        this.database = Database.getInstance();
         this.settings = settings;
+    }
+
+    public void userLogout(CompleteCallback callback) {
+        SharedPreferences.Editor editor = settings.edit();
+        editor.clear();
+        editor.apply();
+        callback.onComplete(true);
+    }
+
+    public void getHeaderInfo(GetHeaderInfoCallback callback) {
+        callback.onComplete(settings.getString(USERNAME, ""), settings.getString(EMAIL, ""));
     }
 
     public void userLogin(String email, String password, CompleteCallback callback) {
@@ -75,6 +134,284 @@ public class Model {
     public void deleteRepresentativeFromGroup(User user, Group group, CompleteCallback callback) {
         DeleteRepresentativeFromGroupTask task = new DeleteRepresentativeFromGroupTask(user, group, callback);
         task.execute();
+    }
+
+    public void getSubjects(GetSubjectsCallback callback) {
+        GetSubjectsTask task = new GetSubjectsTask(callback);
+        task.execute();
+    }
+
+    public void createSubject(String subjectName, CreateSubjectCallback callback) {
+        CreateSubjectTask task = new CreateSubjectTask(subjectName, callback);
+        task.execute();
+    }
+
+    public void getCourses(Subject subject, GetCoursesCallback callback) {
+        GetCoursesTask task = new GetCoursesTask(subject, callback);
+        task.execute();
+    }
+
+    public void createCourse(Subject subject, String courseName,
+                             String courseYear, CreateCourseCallback callback) {
+        CreateCourseTask task = new CreateCourseTask(subject, courseName, courseYear, callback);
+        task.execute();
+    }
+
+    public void getClasses(Course course, GetClassesCallback callback) {
+        GetClassesTask task = new GetClassesTask(course, callback);
+        task.execute();
+    }
+
+    public void createClass(Course course, String className, String teacher, CreateClassCallback callback) {
+        CreateClassTask task = new CreateClassTask(course, className, teacher, callback);
+        task.execute();
+    }
+
+    public void getEvents(Class _class, GetEventsCallback callback) {
+        GetEventsTask task = new GetEventsTask(_class, callback);
+        task.execute();
+    }
+
+    public void createEvent(Class _class, String eventName, String eventPlace,
+                            String eventDate, CreateEventCallback callback) {
+        CreateEventTask task = new CreateEventTask(_class, eventName, eventPlace, eventDate, callback);
+        task.execute();
+    }
+
+    public void getGroups(Class _class, GetGroupsCallback callback) {
+        GetGroupsTask task = new GetGroupsTask(_class, callback);
+        task.execute();
+    }
+
+    public void createGroup(Class _class, String groupName, CreateGroupCallback callback) {
+        CreateGroupTask task = new CreateGroupTask(_class, groupName, callback);
+        task.execute();
+    }
+
+    private class CreateGroupTask extends AsyncTask<Void, Void, Group> {
+        private final CreateGroupCallback callback;
+        private Class _class;
+        private String groupName;
+
+        public CreateGroupTask(Class _class, String groupName, CreateGroupCallback callback) {
+            this.callback = callback;
+            this._class = _class;
+            this.groupName = groupName;
+        }
+
+        @Override
+        protected Group doInBackground(Void... params) {
+            return database.createGroupToClass(settings.getString(AUTH_TOKEN, ""),
+                    _class, groupName);
+        }
+
+        @Override
+        protected void onPostExecute(Group group) {
+            callback.onComplete(group);
+        }
+    }
+
+    private class GetGroupsTask extends AsyncTask<Void, Void, ArrayList<Group>> {
+        private final GetGroupsCallback callback;
+        private Class _class;
+
+        public GetGroupsTask(Class _class, GetGroupsCallback callback) {
+            this.callback = callback;
+            this._class = _class;
+        }
+
+        @Override
+        protected ArrayList<Group> doInBackground(Void... params) {
+            return database.getListOfGroups(settings.getString(AUTH_TOKEN, ""), _class);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Group> groups) {
+            callback.onComplete(groups);
+        }
+    }
+
+    private class CreateEventTask extends AsyncTask<Void, Void, Event> {
+        private final CreateEventCallback callback;
+        private Class _class;
+        private String eventName;
+        private String eventPlace;
+        private String eventDate;
+
+        public CreateEventTask(Class _class, String eventName, String eventPlace,
+                               String eventDate, CreateEventCallback callback) {
+            this.callback = callback;
+            this._class = _class;
+            this.eventName = eventName;
+            this.eventPlace = eventPlace;
+            this.eventDate = eventDate;
+        }
+
+        @Override
+        protected Event doInBackground(Void... params) {
+            return database.addEventToClass(settings.getString(AUTH_TOKEN, ""),
+                    _class, eventName, eventPlace, eventDate);
+        }
+
+        @Override
+        protected void onPostExecute(Event event) {
+            callback.onComplete(event);
+        }
+    }
+
+    private class GetEventsTask extends AsyncTask<Void, Void, ArrayList<Event>> {
+        private final GetEventsCallback callback;
+        private Class _class;
+
+        public GetEventsTask(Class _class, GetEventsCallback callback) {
+            this.callback = callback;
+            this._class = _class;
+        }
+
+        @Override
+        protected ArrayList<Event> doInBackground(Void... params) {
+            return database.getListOfEvents(settings.getString(AUTH_TOKEN, ""), _class);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Event> events) {
+            callback.onComplete(events);
+        }
+    }
+
+    private class CreateClassTask extends AsyncTask<Void, Void, Class> {
+        private final CreateClassCallback callback;
+        private Course course;
+        private String className;
+        private String teacher;
+
+        public CreateClassTask(Course course, String className,
+                               String teacher, CreateClassCallback callback) {
+            this.callback = callback;
+            this.course = course;
+            this.className = className;
+            this.teacher = teacher;
+        }
+
+        @Override
+        protected Class doInBackground(Void... params) {
+            Class _class = database.createClassToCourse(settings.getString(AUTH_TOKEN, ""), course, className);
+            if (_class != null) {
+                if (database.attachTeacherToClass(settings.getString(AUTH_TOKEN, ""), _class, teacher)) {
+                    _class.setTeacher(teacher);
+                }
+            }
+            return _class;
+        }
+
+        @Override
+        protected void onPostExecute(Class _class) {
+            callback.onComplete(_class);
+        }
+    }
+
+    private class GetClassesTask extends AsyncTask<Void, Void, ArrayList<Class>> {
+        private final GetClassesCallback callback;
+        private Course course;
+
+        public GetClassesTask(Course course, GetClassesCallback callback) {
+            this.callback = callback;
+            this.course = course;
+        }
+
+        @Override
+        protected ArrayList<Class> doInBackground(Void... params) {
+            return database.getListOfClasses(settings.getString(AUTH_TOKEN, ""), course);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Class> classes) {
+            callback.onComplete(classes);
+        }
+    }
+
+    private class CreateCourseTask extends AsyncTask<Void, Void, Course> {
+        private final CreateCourseCallback callback;
+        private Subject subject;
+        private String courseName;
+        private String courseYear;
+
+        public CreateCourseTask(Subject subject, String courseName,
+                                String courseYear, CreateCourseCallback callback) {
+            this.callback = callback;
+            this.subject = subject;
+            this.courseName = courseName;
+            this.courseYear = courseYear;
+        }
+
+        @Override
+        protected Course doInBackground(Void... params) {
+            return database.createCourseToSubject(
+                    settings.getString(AUTH_TOKEN, ""), subject, courseName, courseYear);
+        }
+
+        @Override
+        protected void onPostExecute(Course course) {
+            callback.onComplete(course);
+        }
+    }
+
+    private class GetCoursesTask extends AsyncTask<Void, Void, ArrayList<Course>> {
+        private final GetCoursesCallback callback;
+        private Subject subject;
+
+        public GetCoursesTask(Subject subject, GetCoursesCallback callback) {
+            this.callback = callback;
+            this.subject = subject;
+        }
+
+        @Override
+        protected ArrayList<Course> doInBackground(Void... params) {
+            return database.getListOfCourses(settings.getString(AUTH_TOKEN, ""), subject);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Course> courses) {
+            callback.onComplete(courses);
+        }
+    }
+
+    private class CreateSubjectTask extends AsyncTask<Void, Void, Subject> {
+        private final CreateSubjectCallback callback;
+        private String subjectName;
+
+        public CreateSubjectTask(String subjectName, CreateSubjectCallback callback) {
+            this.callback = callback;
+            this.subjectName = subjectName;
+        }
+
+        @Override
+        protected Subject doInBackground(Void... params) {
+            return database.createSubject(settings.getString(AUTH_TOKEN, ""), subjectName);
+        }
+
+        @Override
+        protected void onPostExecute(Subject subject) {
+            callback.onComplete(subject);
+        }
+    }
+
+    private class GetSubjectsTask extends AsyncTask<Void, Void, ArrayList<Subject>> {
+        private final GetSubjectsCallback callback;
+
+        public GetSubjectsTask(GetSubjectsCallback callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        protected ArrayList<Subject> doInBackground(Void... params) {
+            return database.getListOfSubjects(settings.getString(AUTH_TOKEN, ""));
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Subject> subjects) {
+            callback.onComplete(subjects);
+        }
     }
 
     private class AddStudentToGroupTask extends AsyncTask<Void, Void, Boolean> {

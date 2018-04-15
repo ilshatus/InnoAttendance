@@ -17,4 +17,9 @@ public class Group {
     public String getRepresentativeId() {
         return representativeId;
     }
+
+    @Override
+    public String toString() {
+        return id;
+    }
 }
