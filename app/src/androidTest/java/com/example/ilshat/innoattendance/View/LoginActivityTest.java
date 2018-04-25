@@ -1,5 +1,6 @@
 package com.example.ilshat.innoattendance.View;
 
+import android.content.Context;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -24,7 +25,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 
 
 import com.example.ilshat.innoattendance.R;
-
+import static com.example.ilshat.innoattendance.RepositoryModel.Settings.*;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -57,6 +58,15 @@ public class LoginActivityTest {
         onView(withId(R.id.password)).perform(typeText(password), closeSoftKeyboard());
         onView(withId(R.id.email_sign_in_button)).perform(click());
         onView(withId(R.id.drawer_layout)).check(matches(isDisplayed()));
+        logOut();
+    }
+
+    private void logOut() {
+        testRule.getActivity()
+                .getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .apply();
     }
 
     public static Matcher<View> textInputLayoutHasError(final String expectedErrorText) {
