@@ -24,6 +24,7 @@ public class GroupManagementPresenter {
     private Model model;
     private ArrayList<Group> groups;
     private Class _class;
+    private Group group;
 
     public GroupManagementPresenter(GroupManagementFragment fragment, ArrayList<Group> groups, Class _class) {
         this.fragment = fragment;
@@ -32,6 +33,10 @@ public class GroupManagementPresenter {
         SharedPreferences settings = fragment.getActivity().getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE);
         model = new Model(settings);
         getGroups();
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     private void getGroups() {
@@ -46,37 +51,56 @@ public class GroupManagementPresenter {
         });
     }
 
-    public void createGroup() {
+    public void findGroup() {
         final TextView groupName = fragment.getGroupName();
         String sGroupName = groupName.getText().toString();
-
-        String fieldIsRequired = fragment.getActivity().getString(R.string.error_field_required);
-
-
+        final String fieldIsRequired = fragment.getActivity().getString(R.string.error_field_required);
+        final String notFound = fragment.getActivity().getString(R.string.error_not_found);
+        setGroup(null);
         if (sGroupName.isEmpty()) {
             groupName.setError(fieldIsRequired);
         } else {
+            model.getGroup(sGroupName, new Model.GetGroupCallback() {
+                @Override
+                public void onComplete(Group group) {
+                    if (group == null) {
+                        groupName.setError(notFound);
+                    } else {
+                        setGroup(group);
+                    }
+                }
+            });
+        }
+    }
+
+    public void addGroup() {
+        if (group == null) {
+            findGroup();
+        }
+        if (group != null) {
             fragment.showProgress();
-            model.createGroup(_class, sGroupName,
-                    new Model.CreateGroupCallback() {
-                        @Override
-                        public void onComplete(Group group) {
-                            fragment.hideProgress();
-                            fragment.hideCreateView();
-                            groupName.setText("");
-                            if (group != null) {
-                                groups.add(0, group);
-                                fragment.updateAdapter();
-                                Toast toast = Toast.makeText(fragment.getContext(),
-                                        "Group added", Toast.LENGTH_SHORT);
-                                toast.show();
-                            } else {
-                                Toast toast = Toast.makeText(fragment.getContext(),
-                                        "Some error happened", Toast.LENGTH_SHORT);
-                                toast.show();
-                            }
-                        }
-                    });
+            model.addGroupToClass(_class, group, new Model.CompleteCallback() {
+                @Override
+                public void onComplete(Boolean success) {
+                    fragment.hideProgress();
+                    fragment.hideAddView();
+                    TextView groupName = fragment.getGroupName();
+                    groupName.setText("");
+                    groupName.requestFocus();
+                    if (success != null && success) {
+                        groups.add(group);
+                        fragment.updateAdapter();
+                        Toast toast = Toast.makeText(fragment.getContext(),
+                                "Group added", Toast.LENGTH_SHORT);
+                        toast.show();
+                    } else {
+                        Toast toast = Toast.makeText(fragment.getContext(),
+                                "Some error happened", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                    group = null;
+                }
+            });
         }
     }
 }

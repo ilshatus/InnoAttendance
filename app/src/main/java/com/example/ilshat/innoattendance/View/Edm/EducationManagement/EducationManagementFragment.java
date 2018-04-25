@@ -14,18 +14,17 @@ import android.widget.ListView;
 
 import com.example.ilshat.innoattendance.R;
 import com.example.ilshat.innoattendance.View.Edm.EdmMainActivity;
-import com.example.ilshat.innoattendance.View.Edm.UserManagement.CreateUserFragment;
-import com.example.ilshat.innoattendance.View.Edm.UserManagement.RepresentativeGroupsFragment;
-import com.example.ilshat.innoattendance.View.Edm.UserManagement.StudentGroupsFragment;
 import com.example.ilshat.innoattendance.View.ListItemArrayAdapter;
 
 public class EducationManagementFragment extends android.support.v4.app.Fragment
         implements AdapterView.OnItemClickListener {
     private final String[] labels = new String[]{
-            "Subjects"
+            "Subjects",
+            "Create group"
     };
     private final int[] images = new int[] {
-            R.drawable.ic_edit
+            R.drawable.ic_edit,
+            R.drawable.ic_group_add
     };
 
     public EducationManagementFragment() {
@@ -52,6 +51,9 @@ public class EducationManagementFragment extends android.support.v4.app.Fragment
         switch (position) {
             case 0:
                 fragmentClass = SubjectManagementFragment.class;
+                break;
+            case 1:
+                fragmentClass = CreateGroupFragment.class;
                 break;
         }
 

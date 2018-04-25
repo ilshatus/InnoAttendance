@@ -47,7 +47,8 @@
     <string name="events">Events</string>
     <string name="groups">Groups</string>
     <string name="auditorium">Auditorium</string>
-    <string name="date">Date</string>>
+    <string name="date">Date</string>
+    <string name="add">Add</string>>
 
     <string-array name="statuses">
         <item>edm</item>

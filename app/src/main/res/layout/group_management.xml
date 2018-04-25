@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/group_create"
+    <include layout="@layout/group_add"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:visibility="gone"/>

@@ -25,10 +25,6 @@ public class ListItemArrayAdapter extends ArrayAdapter<String> {
         this.images = images;
     }
 
-    private static class ViewHolder {
-        private ImageView imageView;
-        private TextView textView;
-    }
 
     @NonNull
     @Override

@@ -275,12 +275,11 @@ public class Database {
         }
     }
 
-    public Group createGroupToClass(String token, Class classInstance, String group) {
+    public Group createGroupToClass(String token,  String group) {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "createGroupToClass");
+            requestBody.put("do", "createGroup");
             requestBody.put("token", token);
-            requestBody.put("class", classInstance.getId());
             requestBody.put("group", group);
             JSONObject json = send(requestBody);
             return parseGroup(json);
@@ -331,64 +330,10 @@ public class Database {
         }
     }
 
-    public ArrayList<Subject> getListOfSubjectsForRepresentative(String token) {
-        try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "getListOfSubjectsForRepresentative");
-            requestBody.put("token", token);
-            JSONObject json = send(requestBody);
-            return parseArrayOfSubjects(json);
-        } catch(Exception e) {
-            Log.v(CLASS, e.getMessage());
-            return null;
-        }
-    }
-
-    public ArrayList<Subject> getListOfSubjectsForStudent(String token) {
-        try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "getListOfSubjectsForStudent");
-            requestBody.put("token", token);
-            JSONObject json = send(requestBody);
-            return parseArrayOfSubjects(json);
-        } catch(Exception e) {
-            Log.v(CLASS, e.getMessage());
-            return null;
-        }
-    }
-
     public ArrayList<Course> getListOfCourses(String token, Subject subject) {
         try {
             JSONObject requestBody = new JSONObject();
             requestBody.put("do", "getListOfCourses");
-            requestBody.put("token", token);
-            requestBody.put("subject", subject.getId());
-            JSONObject json = send(requestBody);
-            return parseArrayOfCourses(json);
-        } catch(Exception e) {
-            Log.v(CLASS, e.getMessage());
-            return null;
-        }
-    }
-
-    public ArrayList<Course> getListOfCoursesForRepresentative(String token, Subject subject) {
-        try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "getListOfCoursesForRepresentative");
-            requestBody.put("token", token);
-            requestBody.put("subject", subject.getId());
-            JSONObject json = send(requestBody);
-            return parseArrayOfCourses(json);
-        } catch(Exception e) {
-            Log.v(CLASS, e.getMessage());
-            return null;
-        }
-    }
-
-    public ArrayList<Course> getListOfCoursesForStudent(String token, Subject subject) {
-        try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "getListOfCoursesForStudent");
             requestBody.put("token", token);
             requestBody.put("subject", subject.getId());
             JSONObject json = send(requestBody);
@@ -413,35 +358,6 @@ public class Database {
         }
     }
 
-    public ArrayList<Class> getListOfClassesForRepresentative(String token, Course course) {
-        try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "getListOfClassesForRepresentative");
-            requestBody.put("token", token);
-            requestBody.put("course", course.getId());
-            JSONObject json = send(requestBody);
-            ArrayList<Class> result = new ArrayList<Class>();
-            return parseArrayOfClasses(json);
-        } catch(Exception e) {
-            Log.v(CLASS, e.getMessage());
-            return null;
-        }
-    }
-
-    public ArrayList<Class> getListOfClassesForStudent(String token, Course course) {
-        try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "getListOfClassesForStudent");
-            requestBody.put("token", token);
-            requestBody.put("course", course.getId());
-            JSONObject json = send(requestBody);
-            return parseArrayOfClasses(json);
-        } catch(Exception e) {
-            Log.v(CLASS, e.getMessage());
-            return null;
-        }
-    }
-
     public ArrayList<Group> getListOfGroups(String token, Class classInstance) {
         try {
             JSONObject requestBody = new JSONObject();
@@ -456,26 +372,11 @@ public class Database {
         }
     }
 
-    public ArrayList<Group> getListOfGroupsForRepresentative(String token, Class classInstance) {
+    public ArrayList<Group> getRepresentativeGroups(String token) {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "getListOfGroupsForRepresentative");
+            requestBody.put("do", "getRepresentativeGroups");
             requestBody.put("token", token);
-            requestBody.put("class", classInstance.getId());
-            JSONObject json = send(requestBody);
-            return parseArrayOfGroups(json);
-        } catch(Exception e) {
-            Log.v(CLASS, e.getMessage());
-            return null;
-        }
-    }
-
-    public ArrayList<Group> getListOfGroupsForStudent(String token, Class classInstance) {
-        try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "getListOfGroupsForStudent");
-            requestBody.put("token", token);
-            requestBody.put("class", classInstance.getId());
             JSONObject json = send(requestBody);
             return parseArrayOfGroups(json);
         } catch(Exception e) {
@@ -525,31 +426,43 @@ public class Database {
         }
     }
 
-    public ArrayList<User> getStudentsAttended(String token, Event event) {
+    public ArrayList<Event> getRepresentativeEvents(String token, Group group) {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "getStudentsAttended");
+            requestBody.put("do", "getRepresentativeEvents");
             requestBody.put("token", token);
-            requestBody.put("event", event.getId());
+            requestBody.put("group", group.getId());
             JSONObject json = send(requestBody);
-            return parseArrayOfUsers(json);
+            return parseArrayOfEvents(json);
         } catch(Exception e) {
             Log.v(CLASS, e.getMessage());
             return null;
         }
     }
 
-    public boolean setStudentsAttended(String token, Event event, ArrayList<User> students) {
+    public ArrayList<Attendance> getStudentsAttended(String token, Event event, Group group) {
         try {
-            String list = "";
-            for(User student : students)
-                list = list.concat(student.getId() + ";");
-
             JSONObject requestBody = new JSONObject();
-            requestBody.put("do", "setStudentsAttended");
+            requestBody.put("do", "getStudentsAttended");
             requestBody.put("token", token);
             requestBody.put("event", event.getId());
-            requestBody.put("list", list);
+            requestBody.put("group", group.getId());
+            JSONObject json = send(requestBody);
+            return parseArrayOfAttendance(json);
+        } catch(Exception e) {
+            Log.v(CLASS, e.getMessage());
+            return null;
+        }
+    }
+
+    public boolean setStudentAttended(String token, Event event, Attendance attendance) {
+        try {
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("do", "setStudentAttended");
+            requestBody.put("token", token);
+            requestBody.put("event", event.getId());
+            requestBody.put("student", attendance.getStudent().getId());
+            requestBody.put("attended", attendance.isAttended());
 
             JSONObject json = send(requestBody);
             return (json != null) && json.getString("result").equals("OK");
@@ -609,6 +522,15 @@ public class Database {
         return (response == null) ? null : new JSONObject(decode(response.string()));
     }
 
+    private ArrayList<Attendance> parseArrayOfAttendance(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        ArrayList<Attendance> result = new ArrayList<Attendance>();
+        for(int i = 0; i < json.length(); i++)
+            result.add(parseAttendance(json.getJSONObject(Integer.toString(i))));
+        return result;
+    }
+
     private ArrayList<User> parseArrayOfUsers(JSONObject json) throws Exception {
         if(json == null)
             return null;
@@ -661,6 +583,13 @@ public class Database {
         for(int i = 0; i < json.length(); i++)
             result.add(parseGroup(json.getJSONObject(Integer.toString(i))));
         return result;
+    }
+
+    private Attendance parseAttendance(JSONObject json) throws Exception {
+        if(json == null)
+            return null;
+        return new Attendance(parseUser(json.getJSONObject("user")),
+                json.getInt("attended") == 1);
     }
 
     private User parseUser(JSONObject json) throws Exception {

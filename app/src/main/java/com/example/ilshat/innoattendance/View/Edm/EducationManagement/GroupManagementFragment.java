@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -55,7 +56,7 @@ public class GroupManagementFragment extends Fragment implements OnBackPressedLi
         getActivity().setTitle(title);
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         navIconInitial = toolbar.getNavigationIcon();
-        createGroupView = rootView.findViewById(R.id.group_create_layout);
+        createGroupView = rootView.findViewById(R.id.group_add_layout);
 
         listView = (ListView) rootView.findViewById(R.id.groups_list);
         ArrayList<Group> groups = new ArrayList<>();
@@ -68,17 +69,25 @@ public class GroupManagementFragment extends Fragment implements OnBackPressedLi
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showCreateView();
+                showAddView();
             }
         });
 
         groupName = (TextView) createGroupView.findViewById(R.id.group_name);
 
-        Button createGroup = (Button) createGroupView.findViewById(R.id.group_create_btn);
+        Button createGroup = (Button) createGroupView.findViewById(R.id.group_add_btn);
         createGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.createGroup();
+                presenter.addGroup();
+            }
+        });
+
+        groupName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                presenter.findGroup();
+                return false;
             }
         });
 
@@ -115,7 +124,7 @@ public class GroupManagementFragment extends Fragment implements OnBackPressedLi
     @Override
     public boolean onBackPressed() {
         if (createGroupView.getVisibility() == View.VISIBLE) {
-            hideCreateView();
+            hideAddView();
             return true;
         }
         return false;
@@ -125,15 +134,15 @@ public class GroupManagementFragment extends Fragment implements OnBackPressedLi
         adapter.notifyDataSetChanged();
     }
 
-    public void showCreateView() {
+    public void showAddView() {
         toolbar.setNavigationIcon(R.drawable.ic_close);
         fab.setVisibility(View.GONE);
         listView.setVisibility(View.GONE);
         createGroupView.setVisibility(View.VISIBLE);
-        getActivity().setTitle("Create group");
+        getActivity().setTitle("Add group");
     }
 
-    public void hideCreateView() {
+    public void hideAddView() {
         toolbar.setNavigationIcon(navIconInitial);
         fab.setVisibility(View.VISIBLE);
         listView.setVisibility(View.VISIBLE);

@@ -4,6 +4,7 @@ package com.example.ilshat.innoattendance.Model;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
+import com.example.ilshat.innoattendance.RepositoryModel.Attendance;
 import com.example.ilshat.innoattendance.RepositoryModel.Class;
 import com.example.ilshat.innoattendance.RepositoryModel.Course;
 import com.example.ilshat.innoattendance.RepositoryModel.Database;
@@ -72,6 +73,10 @@ public class Model {
 
     public interface CreateGroupCallback {
         void onComplete(Group group);
+    }
+
+    public interface GetAttendancesCallback {
+        void onComplete(ArrayList<Attendance> attendances);
     }
 
     private final Database database;
@@ -183,26 +188,153 @@ public class Model {
         task.execute();
     }
 
-    public void createGroup(Class _class, String groupName, CreateGroupCallback callback) {
-        CreateGroupTask task = new CreateGroupTask(_class, groupName, callback);
+    public void createGroup(String groupName, CreateGroupCallback callback) {
+        CreateGroupTask task = new CreateGroupTask(groupName, callback);
         task.execute();
+    }
+
+    public void getGroups(GetGroupsCallback callback) {
+        GetRepresentativeGroupsTask task = new GetRepresentativeGroupsTask(callback);
+        task.execute();
+    }
+
+    public void getEvents(Group group, GetEventsCallback callback) {
+        GetRepresentativeEventsTask task = new GetRepresentativeEventsTask(group, callback);
+        task.execute();
+    }
+
+    public void addGroupToClass(Class _class, Group group, CompleteCallback callback) {
+        AddGroupToClassTask task = new AddGroupToClassTask(_class, group, callback);
+        task.execute();
+    }
+
+    public void getAttendances(Group group, Event event, GetAttendancesCallback callback) {
+        GetAttendancesTask task = new GetAttendancesTask(group, event, callback);
+        task.execute();
+    }
+
+    public void setAttendance(Event event, Attendance attendance, CompleteCallback callback) {
+        SetAttendanceTask task = new SetAttendanceTask(event, attendance, callback);
+        task.execute();
+    }
+
+    private class SetAttendanceTask extends AsyncTask<Void, Void, Boolean> {
+        private final CompleteCallback callback;
+        private Event event;
+        private Attendance attendance;
+
+        public SetAttendanceTask(Event event, Attendance attendance, CompleteCallback callback) {
+            this.callback = callback;
+            this.attendance = attendance;
+            this.event = event;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            return database.setStudentAttended(settings.getString(AUTH_TOKEN, ""), event, attendance);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            callback.onComplete(aBoolean);
+        }
+    }
+
+
+    private class GetAttendancesTask extends AsyncTask<Void, Void, ArrayList<Attendance>> {
+        private final GetAttendancesCallback callback;
+        private Group group;
+        private Event event;
+
+        public GetAttendancesTask(Group group, Event event, GetAttendancesCallback callback) {
+            this.callback = callback;
+            this.group = group;
+            this.event = event;
+        }
+
+        @Override
+        protected ArrayList<Attendance> doInBackground(Void... params) {
+            return database.getStudentsAttended(settings.getString(AUTH_TOKEN, ""), event, group);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Attendance> attendances) {
+            callback.onComplete(attendances);
+        }
+    }
+
+    private class AddGroupToClassTask extends AsyncTask<Void, Void, Boolean> {
+        private final CompleteCallback callback;
+        private Group group;
+        private Class _class;
+
+        public AddGroupToClassTask(Class _class, Group group, CompleteCallback callback) {
+            this._class = _class;
+            this.callback = callback;
+            this.group = group;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            return database.addExistingGroupToClass(settings.getString(AUTH_TOKEN, ""), _class, group);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            callback.onComplete(aBoolean);
+        }
+    }
+
+    private class GetRepresentativeEventsTask extends AsyncTask<Void, Void, ArrayList<Event>> {
+        private final GetEventsCallback callback;
+        private Group group;
+
+        public GetRepresentativeEventsTask(Group group, GetEventsCallback callback) {
+            this.callback = callback;
+            this.group = group;
+        }
+
+        @Override
+        protected ArrayList<Event> doInBackground(Void... params) {
+            return database.getRepresentativeEvents(settings.getString(AUTH_TOKEN, ""), group);
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Event> events) {
+            callback.onComplete(events);
+        }
+    }
+
+    private class GetRepresentativeGroupsTask extends AsyncTask<Void, Void, ArrayList<Group>> {
+        private final GetGroupsCallback callback;
+
+        public GetRepresentativeGroupsTask(GetGroupsCallback callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        protected ArrayList<Group> doInBackground(Void... params) {
+            return database.getRepresentativeGroups(settings.getString(AUTH_TOKEN, ""));
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Group> groups) {
+            callback.onComplete(groups);
+        }
     }
 
     private class CreateGroupTask extends AsyncTask<Void, Void, Group> {
         private final CreateGroupCallback callback;
-        private Class _class;
         private String groupName;
 
-        public CreateGroupTask(Class _class, String groupName, CreateGroupCallback callback) {
+        public CreateGroupTask(String groupName, CreateGroupCallback callback) {
             this.callback = callback;
-            this._class = _class;
             this.groupName = groupName;
         }
 
         @Override
         protected Group doInBackground(Void... params) {
-            return database.createGroupToClass(settings.getString(AUTH_TOKEN, ""),
-                    _class, groupName);
+            return database.createGroupToClass(settings.getString(AUTH_TOKEN, ""), groupName);
         }
 
         @Override
